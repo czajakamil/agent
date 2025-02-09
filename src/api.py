@@ -1,5 +1,11 @@
 from flask import Flask, request, jsonify, Response, stream_with_context
-from clasess.OpenAIService import OpenAIService, MessageHistory, CompletionConfig
+import sys
+import os
+
+# Add the project root directory to Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from src.services.openai_service import OpenAIService, MessageHistory, CompletionConfig
 import asyncio
 from dotenv import load_dotenv
 from typing import AsyncGenerator

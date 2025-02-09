@@ -1,6 +1,6 @@
 import os
 import time
-from clasess.tools.ToDoist import ToDoist
+from src.tools.todoist import ToDoist
 
 def main():
     """

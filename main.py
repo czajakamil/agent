@@ -1,39 +1,62 @@
-from clasess.OpenAIService import OpenAIService
 import asyncio
-from dotenv import load_dotenv
 import subprocess
 import webbrowser
 import time
 import os
+import sys
+
+# Add the project root directory to Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from src.config.settings import settings
+from src.utils.errors import AppError, ConfigError
+
+def start_server(script_path: str, port: int, name: str) -> subprocess.Popen:
+    """Start a server process.
+    
+    Args:
+        script_path: Path to the server script
+        port: Server port
+        name: Server name for logging
+        
+    Returns:
+        subprocess.Popen: The server process
+    """
+    try:
+        process = subprocess.Popen([sys.executable, script_path])
+        print(f"Started {name} server on port {port}")
+        return process
+    except Exception as e:
+        raise ConfigError(f"Failed to start {name} server: {str(e)}")
 
 def main():
-    # Load environment variables
-    load_dotenv()
-    
+    """Main application entry point."""
     try:
-        # Start Flask API server in a separate process
-        api_process = subprocess.Popen(['python', 'api.py'])
-        print("Started API server...")
+        # Start Flask API server
+        api_process = start_server(
+            'src/api.py',
+            settings.api_port,
+            'API'
+        )
+        time.sleep(2)  # Give API server time to start
         
-        # Give the API server a moment to start
-        time.sleep(2)
+        # Start Gradio interface
+        gradio_process = start_server(
+            'src/interfaces/gradio_app.py',
+            settings.gradio_port,
+            'Gradio'
+        )
+        time.sleep(3)  # Give Gradio time to start
         
-        # Start Gradio app in a separate process
-        gradio_process = subprocess.Popen(['python', 'gradio_app.py'])
-        print("Started Gradio app...")
+        # Open the Gradio app in default browser
+        webbrowser.open(f'http://localhost:{settings.gradio_port}')
         
-        # Give Gradio a moment to start
-        time.sleep(3)
+        print("\nAll servers are running!")
+        print(f"API server: http://localhost:{settings.api_port}")
+        print(f"Gradio interface: http://localhost:{settings.gradio_port}")
+        print("\nPress Ctrl+C to stop all servers.")
         
-        # Open the Gradio app in the default browser
-        webbrowser.open('http://localhost:7860')
-        
-        print("\nBoth servers are running!")
-        print("API server is available at: http://localhost:8000")
-        print("Gradio app is available at: http://localhost:7860")
-        print("\nPress Ctrl+C to stop both servers.")
-        
-        # Keep the main process running and handle graceful shutdown
+        # Keep the main process running
         try:
             while True:
                 time.sleep(1)
@@ -45,14 +68,16 @@ def main():
             gradio_process.wait()
             print("Servers stopped. Goodbye!")
             
+    except AppError as e:
+        print(f"\nApplication error: {e.message}")
     except Exception as e:
-        print(f"\nError during initialization: {str(e)}")
-        # Ensure processes are terminated in case of error
+        print(f"\nUnexpected error: {str(e)}")
+    finally:
+        # Ensure processes are terminated
         if 'api_process' in locals():
             api_process.terminate()
         if 'gradio_process' in locals():
             gradio_process.terminate()
-        return
 
 if __name__ == "__main__":
     main() 

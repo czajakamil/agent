@@ -1,6 +1,12 @@
 import gradio as gr
 import asyncio
-from clasess.OpenAIService import OpenAIService, MessageHistory, CompletionConfig
+import sys
+import os
+
+# Add the project root directory to Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from src.services.openai_service import OpenAIService, MessageHistory, CompletionConfig
 from dotenv import load_dotenv
 from typing import AsyncGenerator, Union
 
