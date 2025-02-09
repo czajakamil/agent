@@ -34,7 +34,7 @@ def main():
     try:
         # Start Flask API server
         api_process = start_server(
-            'src/api.py',
+            'src/services/api_service.py',
             settings.api_port,
             'API'
         )
