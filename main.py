@@ -18,19 +18,19 @@ def main():
         # Give the API server a moment to start
         time.sleep(2)
         
-        # Start Streamlit app in a separate process with disabled auto-browser opening
-        streamlit_process = subprocess.Popen(['streamlit', 'run', '--server.headless=true', 'streamlit_app.py'])
-        print("Started Streamlit app...")
+        # Start Gradio app in a separate process
+        gradio_process = subprocess.Popen(['python', 'gradio_app.py'])
+        print("Started Gradio app...")
         
-        # Give Streamlit a moment to start
+        # Give Gradio a moment to start
         time.sleep(3)
         
-        # Open the Streamlit app in the default browser
-        webbrowser.open('http://localhost:8501')
+        # Open the Gradio app in the default browser
+        webbrowser.open('http://localhost:7860')
         
         print("\nBoth servers are running!")
         print("API server is available at: http://localhost:8000")
-        print("Streamlit app is available at: http://localhost:8501")
+        print("Gradio app is available at: http://localhost:7860")
         print("\nPress Ctrl+C to stop both servers.")
         
         # Keep the main process running and handle graceful shutdown
@@ -40,9 +40,9 @@ def main():
         except KeyboardInterrupt:
             print("\nShutting down servers...")
             api_process.terminate()
-            streamlit_process.terminate()
+            gradio_process.terminate()
             api_process.wait()
-            streamlit_process.wait()
+            gradio_process.wait()
             print("Servers stopped. Goodbye!")
             
     except Exception as e:
@@ -50,8 +50,8 @@ def main():
         # Ensure processes are terminated in case of error
         if 'api_process' in locals():
             api_process.terminate()
-        if 'streamlit_process' in locals():
-            streamlit_process.terminate()
+        if 'gradio_process' in locals():
+            gradio_process.terminate()
         return
 
 if __name__ == "__main__":
